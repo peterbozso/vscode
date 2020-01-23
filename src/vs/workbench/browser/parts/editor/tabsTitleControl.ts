@@ -475,15 +475,15 @@ export class TabsTitleControl extends TitleControl {
 		// Tab Editor Label
 		const editorLabel = this.tabResourceLabels.create(tabContainer);
 
-		// Tab Close Button
-		const tabCloseContainer = document.createElement('div');
-		addClass(tabCloseContainer, 'tab-close');
-		tabContainer.appendChild(tabCloseContainer);
-
 		// Tab Pin Button
 		const tabPinContainer = document.createElement('div');
 		addClass(tabPinContainer, 'tab-close');
 		tabContainer.appendChild(tabPinContainer);
+
+		// Tab Close Button
+		const tabCloseContainer = document.createElement('div');
+		addClass(tabCloseContainer, 'tab-close');
+		tabContainer.appendChild(tabCloseContainer);
 
 		// Tab Border Bottom
 		const tabBorderBottomContainer = document.createElement('div');
@@ -492,18 +492,18 @@ export class TabsTitleControl extends TitleControl {
 
 		const tabActionRunner = new EditorCommandsContextActionRunner({ groupId: this.group.id, editorIndex: index });
 
-		const tabActionBar = new ActionBar(tabCloseContainer, { ariaLabel: localize('araLabelTabActions', "Tab actions"), actionRunner: tabActionRunner });
-		tabActionBar.push(this.closeOneEditorAction, { icon: true, label: false, keybinding: this.getKeybindingLabel(this.closeOneEditorAction) });
-		tabActionBar.onDidBeforeRun(() => this.blockRevealActiveTabOnce());
+		const pinActionBar = new ActionBar(tabPinContainer, { ariaLabel: localize('araLabelTabActions', "Tab actions"), actionRunner: tabActionRunner });
+		pinActionBar.push(this.pinEditorAction, { icon: true, label: false, keybinding: this.getKeybindingLabel(this.pinEditorAction) });
+		pinActionBar.onDidBeforeRun(() => this.blockRevealActiveTabOnce());
 
-		const tabActionBar2 = new ActionBar(tabPinContainer, { ariaLabel: localize('araLabelTabActions', "Tab actions"), actionRunner: tabActionRunner });
-		tabActionBar2.push(this.pinEditorAction, { icon: true, label: false, keybinding: this.getKeybindingLabel(this.pinEditorAction) });
-		tabActionBar2.onDidBeforeRun(() => this.blockRevealActiveTabOnce());
+		const closeActionBar = new ActionBar(tabCloseContainer, { ariaLabel: localize('araLabelTabActions', "Tab actions"), actionRunner: tabActionRunner });
+		closeActionBar.push(this.closeOneEditorAction, { icon: true, label: false, keybinding: this.getKeybindingLabel(this.closeOneEditorAction) });
+		closeActionBar.onDidBeforeRun(() => this.blockRevealActiveTabOnce());
 
 		// Eventing
 		const eventsDisposable = this.registerTabListeners(tabContainer, index, tabsContainer, tabsScrollbar);
 
-		this.tabDisposables.push(combinedDisposable(eventsDisposable, tabActionBar, tabActionBar2, tabActionRunner, editorLabel));
+		this.tabDisposables.push(combinedDisposable(eventsDisposable, pinActionBar, closeActionBar, tabActionRunner, editorLabel));
 
 		return tabContainer;
 	}
