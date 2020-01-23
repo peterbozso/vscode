@@ -459,6 +459,24 @@ export function toEditorQuickOpenEntry(element: any): IEditorQuickOpenEntry | nu
 	return null;
 }
 
+export class PinEditorAction extends Action {
+
+	static readonly ID = 'workbench.action.pinActiveEditor';
+	static readonly LABEL = nls.localize('pinEditor', "Pin Editor");
+
+	constructor(
+		id: string,
+		label: string,
+		@ICommandService private readonly commandService: ICommandService
+	) {
+		super(id, label, 'codicon-pin');
+	}
+
+	run(context?: IEditorCommandsContext): Promise<any> {
+		return this.commandService.executeCommand(CLOSE_EDITOR_COMMAND_ID, undefined, context);
+	}
+}
+
 export class CloseEditorAction extends Action {
 
 	static readonly ID = 'workbench.action.closeActiveEditor';

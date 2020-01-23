@@ -35,7 +35,7 @@ import { MergeGroupMode, IMergeGroupOptions, GroupsArrangement } from 'vs/workbe
 import { addClass, addDisposableListener, hasClass, EventType, EventHelper, removeClass, Dimension, scheduleAtNextAnimationFrame, findParentWithClass, clearNode } from 'vs/base/browser/dom';
 import { localize } from 'vs/nls';
 import { IEditorGroupsAccessor, IEditorGroupView } from 'vs/workbench/browser/parts/editor/editor';
-import { CloseOneEditorAction } from 'vs/workbench/browser/parts/editor/editorActions';
+import { CloseOneEditorAction, PinEditorAction } from 'vs/workbench/browser/parts/editor/editorActions';
 import { IConfigurationService } from 'vs/platform/configuration/common/configuration';
 import { BreadcrumbsControl } from 'vs/workbench/browser/parts/editor/breadcrumbsControl';
 import { IFileService } from 'vs/platform/files/common/files';
@@ -59,6 +59,7 @@ export class TabsTitleControl extends TitleControl {
 	private tabsScrollbar: ScrollableElement | undefined;
 
 	private closeOneEditorAction: CloseOneEditorAction;
+	private pinEditorAction: PinEditorAction;
 
 	private tabResourceLabels: ResourceLabels;
 	private tabLabels: IEditorInputLabel[] = [];
@@ -91,6 +92,7 @@ export class TabsTitleControl extends TitleControl {
 
 		this.tabResourceLabels = this._register(this.instantiationService.createInstance(ResourceLabels, DEFAULT_LABELS_CONTAINER));
 		this.closeOneEditorAction = this._register(this.instantiationService.createInstance(CloseOneEditorAction, CloseOneEditorAction.ID, CloseOneEditorAction.LABEL));
+		this.pinEditorAction = this._register(this.instantiationService.createInstance(PinEditorAction, PinEditorAction.ID, PinEditorAction.LABEL));
 	}
 
 	protected create(parent: HTMLElement): void {
@@ -478,6 +480,11 @@ export class TabsTitleControl extends TitleControl {
 		addClass(tabCloseContainer, 'tab-close');
 		tabContainer.appendChild(tabCloseContainer);
 
+		// Tab Pin Button
+		const tabPinContainer = document.createElement('div');
+		addClass(tabPinContainer, 'tab-close');
+		tabContainer.appendChild(tabPinContainer);
+
 		// Tab Border Bottom
 		const tabBorderBottomContainer = document.createElement('div');
 		addClass(tabBorderBottomContainer, 'tab-border-bottom-container');
@@ -489,10 +496,14 @@ export class TabsTitleControl extends TitleControl {
 		tabActionBar.push(this.closeOneEditorAction, { icon: true, label: false, keybinding: this.getKeybindingLabel(this.closeOneEditorAction) });
 		tabActionBar.onDidBeforeRun(() => this.blockRevealActiveTabOnce());
 
+		const tabActionBar2 = new ActionBar(tabPinContainer, { ariaLabel: localize('araLabelTabActions', "Tab actions"), actionRunner: tabActionRunner });
+		tabActionBar2.push(this.pinEditorAction, { icon: true, label: false, keybinding: this.getKeybindingLabel(this.pinEditorAction) });
+		tabActionBar2.onDidBeforeRun(() => this.blockRevealActiveTabOnce());
+
 		// Eventing
 		const eventsDisposable = this.registerTabListeners(tabContainer, index, tabsContainer, tabsScrollbar);
 
-		this.tabDisposables.push(combinedDisposable(eventsDisposable, tabActionBar, tabActionRunner, editorLabel));
+		this.tabDisposables.push(combinedDisposable(eventsDisposable, tabActionBar, tabActionBar2, tabActionRunner, editorLabel));
 
 		return tabContainer;
 	}
